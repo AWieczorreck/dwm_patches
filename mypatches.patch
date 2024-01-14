@@ -177,7 +177,7 @@ index ddc8321..86e73f9 100644
  dwm is customized by creating a custom config.h and (re)compiling the source
  code. This keeps it fast, secure and simple.
 diff --git a/dwm.c b/dwm.c
-index f1d86b2..9b3fa06 100644
+index f1d86b2..d8e9cf4 100644
 --- a/dwm.c
 +++ b/dwm.c
 @@ -29,6 +29,7 @@
@@ -723,12 +723,12 @@ index f1d86b2..9b3fa06 100644
 +void
 +killsbar() {
 +    FILE *fptr;
-+    char pidofbar[6];
++    char pidofbar[10];
 +    int i_pid;
 +    char *user;
 +    char path_to_pid[255];
 +
-+    user= getlogin();
++    user = getlogin();
 +
 +    strcat(path_to_pid, "/home/");
 +    strcat(path_to_pid, user);
@@ -738,7 +738,7 @@ index f1d86b2..9b3fa06 100644
 +    if (fptr == NULL) {
 +        return;
 +    }
-+    fgets(pidofbar, 6, fptr);
++    fgets(pidofbar, 10, fptr);
 +    i_pid = atoi(pidofbar);
 +
 +    if (i_pid != 0) {
