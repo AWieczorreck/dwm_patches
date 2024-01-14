@@ -177,7 +177,7 @@ index ddc8321..86e73f9 100644
  dwm is customized by creating a custom config.h and (re)compiling the source
  code. This keeps it fast, secure and simple.
 diff --git a/dwm.c b/dwm.c
-index f1d86b2..745c920 100644
+index f1d86b2..9b3fa06 100644
 --- a/dwm.c
 +++ b/dwm.c
 @@ -29,6 +29,7 @@
@@ -711,14 +711,15 @@ index f1d86b2..745c920 100644
  		updatestatus();
  	else if (ev->state == PropertyDelete)
  		return; /* ignore */
-@@ -1258,9 +1533,35 @@ propertynotify(XEvent *e)
+@@ -1258,7 +1533,36 @@ propertynotify(XEvent *e)
  void
  quit(const Arg *arg)
  {
+-	running = 0;
 +    killsbar();
- 	running = 0;
- }
- 
++    running = 0;
++}
++
 +void
 +killsbar() {
 +    FILE *fptr;
@@ -734,20 +735,21 @@ index f1d86b2..745c920 100644
 +    strcat(path_to_pid, "/.cache/pidofbar");
 +
 +    fptr = fopen(path_to_pid, "r");
++    if (fptr == NULL) {
++        return;
++    }
 +    fgets(pidofbar, 6, fptr);
-+
 +    i_pid = atoi(pidofbar);
++
 +    if (i_pid != 0) {
 +        kill(i_pid, 9);
 +    }
 +
 +    fclose(fptr);
-+}
-+
+ }
+ 
  Monitor *
- recttomon(int x, int y, int w, int h)
- {
-@@ -1275,6 +1576,19 @@ recttomon(int x, int y, int w, int h)
+@@ -1275,6 +1579,19 @@ recttomon(int x, int y, int w, int h)
  	return r;
  }
  
@@ -767,7 +769,7 @@ index f1d86b2..745c920 100644
  void
  resize(Client *c, int x, int y, int w, int h, int interact)
  {
-@@ -1282,6 +1596,14 @@ resize(Client *c, int x, int y, int w, int h, int interact)
+@@ -1282,6 +1599,14 @@ resize(Client *c, int x, int y, int w, int h, int interact)
  		resizeclient(c, x, y, w, h);
  }
  
@@ -782,7 +784,7 @@ index f1d86b2..745c920 100644
  void
  resizeclient(Client *c, int x, int y, int w, int h)
  {
-@@ -1354,6 +1676,19 @@ resizemouse(const Arg *arg)
+@@ -1354,6 +1679,19 @@ resizemouse(const Arg *arg)
  	}
  }
  
@@ -802,7 +804,7 @@ index f1d86b2..745c920 100644
  void
  restack(Monitor *m)
  {
-@@ -1390,6 +1725,83 @@ run(void)
+@@ -1390,6 +1728,83 @@ run(void)
  			handler[ev.type](&ev); /* call handler */
  }
  
@@ -886,7 +888,7 @@ index f1d86b2..745c920 100644
  void
  scan(void)
  {
-@@ -1443,26 +1855,37 @@ setclientstate(Client *c, long state)
+@@ -1443,26 +1858,37 @@ setclientstate(Client *c, long state)
  }
  
  int
@@ -935,7 +937,7 @@ index f1d86b2..745c920 100644
  	}
  	return exists;
  }
-@@ -1476,7 +1899,7 @@ setfocus(Client *c)
+@@ -1476,7 +1902,7 @@ setfocus(Client *c)
  			XA_WINDOW, 32, PropModeReplace,
  			(unsigned char *) &(c->win), 1);
  	}
@@ -944,7 +946,7 @@ index f1d86b2..745c920 100644
  }
  
  void
-@@ -1571,22 +1994,32 @@ setup(void)
+@@ -1571,22 +1997,32 @@ setup(void)
  	wmatom[WMState] = XInternAtom(dpy, "WM_STATE", False);
  	wmatom[WMTakeFocus] = XInternAtom(dpy, "WM_TAKE_FOCUS", False);
  	netatom[NetActiveWindow] = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
@@ -981,7 +983,7 @@ index f1d86b2..745c920 100644
  	/* init bars */
  	updatebars();
  	updatestatus();
-@@ -1644,6 +2077,7 @@ showhide(Client *c)
+@@ -1644,6 +2080,7 @@ showhide(Client *c)
  	}
  }
  
@@ -989,7 +991,7 @@ index f1d86b2..745c920 100644
  void
  spawn(const Arg *arg)
  {
-@@ -1717,7 +2151,18 @@ togglebar(const Arg *arg)
+@@ -1717,7 +2154,18 @@ togglebar(const Arg *arg)
  {
  	selmon->showbar = !selmon->showbar;
  	updatebarpos(selmon);
@@ -1009,7 +1011,7 @@ index f1d86b2..745c920 100644
  	arrange(selmon);
  }
  
-@@ -1813,11 +2258,18 @@ unmapnotify(XEvent *e)
+@@ -1813,11 +2261,18 @@ unmapnotify(XEvent *e)
  		else
  			unmanage(c, 0);
  	}
@@ -1028,7 +1030,7 @@ index f1d86b2..745c920 100644
  	Monitor *m;
  	XSetWindowAttributes wa = {
  		.override_redirect = True,
-@@ -1828,10 +2280,15 @@ updatebars(void)
+@@ -1828,10 +2283,15 @@ updatebars(void)
  	for (m = mons; m; m = m->next) {
  		if (m->barwin)
  			continue;
@@ -1045,7 +1047,7 @@ index f1d86b2..745c920 100644
  		XMapRaised(dpy, m->barwin);
  		XSetClassHint(dpy, m->barwin, &ch);
  	}
-@@ -2008,6 +2465,125 @@ updatestatus(void)
+@@ -2008,6 +2468,125 @@ updatestatus(void)
  	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext)))
  		strcpy(stext, "dwm-"VERSION);
  	drawbar(selmon);
@@ -1171,7 +1173,7 @@ index f1d86b2..745c920 100644
  }
  
  void
-@@ -2075,6 +2651,16 @@ wintoclient(Window w)
+@@ -2075,6 +2654,16 @@ wintoclient(Window w)
  	return NULL;
  }
  
@@ -1188,7 +1190,7 @@ index f1d86b2..745c920 100644
  Monitor *
  wintomon(Window w)
  {
-@@ -2128,6 +2714,22 @@ xerrorstart(Display *dpy, XErrorEvent *ee)
+@@ -2128,6 +2717,22 @@ xerrorstart(Display *dpy, XErrorEvent *ee)
  	return -1;
  }
  
@@ -1211,7 +1213,7 @@ index f1d86b2..745c920 100644
  void
  zoom(const Arg *arg)
  {
-@@ -2158,8 +2760,71 @@ main(int argc, char *argv[])
+@@ -2158,8 +2763,71 @@ main(int argc, char *argv[])
  		die("pledge");
  #endif /* __OpenBSD__ */
  	scan();
