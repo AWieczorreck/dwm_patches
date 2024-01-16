@@ -21,10 +21,10 @@ index ffa69b4..072e417 100644
  uninstall:
  	rm -f ${DESTDIR}${PREFIX}/bin/dwm\
 diff --git a/config.def.h b/config.def.h
-index 9efa774..c0bc63c 100644
+index 9efa774..9ce157b 100644
 --- a/config.def.h
 +++ b/config.def.h
-@@ -1,12 +1,19 @@
+@@ -1,25 +1,38 @@
  /* See LICENSE file for copyright and license details. */
  
 +#include <X11/XF86keysym.h>
@@ -46,15 +46,28 @@ index 9efa774..c0bc63c 100644
  static const char col_gray1[]       = "#222222";
  static const char col_gray2[]       = "#444444";
  static const char col_gray3[]       = "#bbbbbb";
-@@ -18,6 +25,7 @@ static const char *colors[][3]      = {
+ static const char col_gray4[]       = "#eeeeee";
+-static const char col_cyan[]        = "#005577";
++static const char col_cyan[]        = "#4b5320"; /* #005577 */
+ static const char *colors[][3]      = {
+ 	/*               fg         bg         border   */
+ 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
  	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
  };
  
++static const char *const autostart[] = {
++	"picom", "--config", "/home/user/.config/picom/picom.conf", NULL,
++	"sbar", NULL,
++	NULL/* terminate */
++};
 +
  /* tagging */
- static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
++static const char *tags[] = { "󰎦 ", "󰎩 ", "󰎬 ", "󰎮 ", "󰎰 ", "󰎵 ", "󰎸 ", "󰎻 ", "󰎾 " };
  
-@@ -42,10 +50,12 @@ static const Layout layouts[] = {
+ static const Rule rules[] = {
+ 	/* xprop(1):
+@@ -42,10 +55,12 @@ static const Layout layouts[] = {
  	{ "[]=",      tile },    /* first entry is default */
  	{ "><>",      NULL },    /* no layout function means floating behavior */
  	{ "[M]",      monocle },
@@ -68,7 +81,7 @@ index 9efa774..c0bc63c 100644
  #define TAGKEYS(KEY,TAG) \
  	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
  	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-@@ -58,12 +68,22 @@ static const Layout layouts[] = {
+@@ -58,12 +73,22 @@ static const Layout layouts[] = {
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
  static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
@@ -94,7 +107,7 @@ index 9efa774..c0bc63c 100644
  	{ MODKEY,                       XK_b,      togglebar,      {0} },
  	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
  	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-@@ -73,10 +93,12 @@ static const Key keys[] = {
+@@ -73,10 +98,12 @@ static const Key keys[] = {
  	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
  	{ MODKEY,                       XK_Return, zoom,           {0} },
  	{ MODKEY,                       XK_Tab,    view,           {0} },
@@ -108,7 +121,7 @@ index 9efa774..c0bc63c 100644
  	{ MODKEY,                       XK_space,  setlayout,      {0} },
  	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
  	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
-@@ -94,7 +116,11 @@ static const Key keys[] = {
+@@ -94,7 +121,11 @@ static const Key keys[] = {
  	TAGKEYS(                        XK_7,                      6)
  	TAGKEYS(                        XK_8,                      7)
  	TAGKEYS(                        XK_9,                      8)
@@ -121,7 +134,7 @@ index 9efa774..c0bc63c 100644
  };
  
  /* button definitions */
-@@ -102,7 +128,7 @@ static const Key keys[] = {
+@@ -102,7 +133,7 @@ static const Key keys[] = {
  static const Button buttons[] = {
  	/* click                event mask      button          function        argument */
  	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
@@ -130,65 +143,16 @@ index 9efa774..c0bc63c 100644
  	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
  	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
  	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
-@@ -113,4 +139,3 @@ static const Button buttons[] = {
+@@ -113,4 +144,3 @@ static const Button buttons[] = {
  	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
  	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
  };
 -
-diff --git a/dwm.1 b/dwm.1
-index ddc8321..86e73f9 100644
---- a/dwm.1
-+++ b/dwm.1
-@@ -30,6 +30,14 @@ top left corner.  The tags which are applied to one or more windows are
- indicated with an empty square in the top left corner.
- .P
- dwm draws a small border around windows to indicate the focus state.
-+.P
-+On start, dwm can start additional programs that may be specified in two special
-+shell scripts (see the FILES section below), autostart_blocking.sh and
-+autostart.sh.  The former is executed first and dwm will wait for its
-+termination before starting.  The latter is executed in the background before
-+dwm enters its handler loop.
-+.P
-+Either of these files may be omitted.
- .SH OPTIONS
- .TP
- .B \-v
-@@ -152,6 +160,21 @@ Toggles focused window between floating and tiled state.
- .TP
- .B Mod1\-Button3
- Resize focused window while dragging. Tiled windows will be toggled to the floating state.
-+.SH FILES
-+The files containing programs to be started along with dwm are searched for in
-+the following directories:
-+.IP "1. $XDG_DATA_HOME/dwm"
-+.IP "2. $HOME/.local/share/dwm"
-+.IP "3. $HOME/.dwm"
-+.P
-+The first existing directory is scanned for any of the autostart files below.
-+.TP 15
-+autostart.sh
-+This file is started as a shell background process before dwm enters its handler
-+loop.
-+.TP 15
-+autostart_blocking.sh
-+This file is started before any autostart.sh; dwm waits for its termination.
- .SH CUSTOMIZATION
- dwm is customized by creating a custom config.h and (re)compiling the source
- code. This keeps it fast, secure and simple.
 diff --git a/dwm.c b/dwm.c
-index f1d86b2..d8e9cf4 100644
+index f1d86b2..790994d 100644
 --- a/dwm.c
 +++ b/dwm.c
-@@ -29,6 +29,7 @@
- #include <string.h>
- #include <unistd.h>
- #include <sys/types.h>
-+#include <sys/stat.h>
- #include <sys/wait.h>
- #include <X11/cursorfont.h>
- #include <X11/keysym.h>
-@@ -57,12 +58,27 @@
+@@ -57,12 +57,27 @@
  #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
  #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
  
@@ -216,7 +180,7 @@ index f1d86b2..d8e9cf4 100644
  enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
  enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
         ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
-@@ -141,6 +157,12 @@ typedef struct {
+@@ -141,6 +156,12 @@ typedef struct {
  	int monitor;
  } Rule;
  
@@ -229,7 +193,7 @@ index f1d86b2..d8e9cf4 100644
  /* function declarations */
  static void applyrules(Client *c);
  static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
-@@ -163,6 +185,7 @@ static void detachstack(Client *c);
+@@ -163,6 +184,7 @@ static void detachstack(Client *c);
  static Monitor *dirtomon(int dir);
  static void drawbar(Monitor *m);
  static void drawbars(void);
@@ -237,7 +201,7 @@ index f1d86b2..d8e9cf4 100644
  static void enternotify(XEvent *e);
  static void expose(XEvent *e);
  static void focus(Client *c);
-@@ -172,12 +195,15 @@ static void focusstack(const Arg *arg);
+@@ -172,12 +194,14 @@ static void focusstack(const Arg *arg);
  static Atom getatomprop(Client *c, Atom prop);
  static int getrootptr(int *x, int *y);
  static long getstate(Window w);
@@ -249,11 +213,10 @@ index f1d86b2..d8e9cf4 100644
  static void keypress(XEvent *e);
  static void killclient(const Arg *arg);
 +static void layoutmenu(const Arg *arg);
-+static void killsbar(void);
  static void manage(Window w, XWindowAttributes *wa);
  static void mappingnotify(XEvent *e);
  static void maprequest(XEvent *e);
-@@ -189,13 +215,17 @@ static void pop(Client *c);
+@@ -189,13 +213,16 @@ static void pop(Client *c);
  static void propertynotify(XEvent *e);
  static void quit(const Arg *arg);
  static Monitor *recttomon(int x, int y, int w, int h);
@@ -265,14 +228,13 @@ index f1d86b2..d8e9cf4 100644
 +static void resizerequest(XEvent *e);
  static void restack(Monitor *m);
  static void run(void);
-+static void runautostart(void);
  static void scan(void);
 -static int sendevent(Client *c, Atom proto);
 +static int sendevent(Window w, Atom proto, int m, long d0, long d1, long d2, long d3, long d4);
  static void sendmon(Client *c, Monitor *m);
  static void setclientstate(Client *c, long state);
  static void setfocus(Client *c);
-@@ -206,6 +236,7 @@ static void setup(void);
+@@ -206,6 +233,7 @@ static void setup(void);
  static void seturgent(Client *c, int urg);
  static void showhide(Client *c);
  static void spawn(const Arg *arg);
@@ -280,7 +242,7 @@ index f1d86b2..d8e9cf4 100644
  static void tag(const Arg *arg);
  static void tagmon(const Arg *arg);
  static void tile(Monitor *m);
-@@ -223,20 +254,31 @@ static int updategeom(void);
+@@ -223,20 +251,28 @@ static int updategeom(void);
  static void updatenumlockmask(void);
  static void updatesizehints(Client *c);
  static void updatestatus(void);
@@ -298,22 +260,19 @@ index f1d86b2..d8e9cf4 100644
  static int xerrordummy(Display *dpy, XErrorEvent *ee);
  static int xerrorstart(Display *dpy, XErrorEvent *ee);
  static void zoom(const Arg *arg);
++static void autostart_exec(void);
 +static void bstack(Monitor *m);
 +static void bstackhoriz(Monitor *m);
  
  /* variables */
 +static Systray *systray = NULL;
-+static const char autostartblocksh[] = "autostart_blocking.sh";
-+static const char autostartsh[] = "autostart.sh";
  static const char broken[] = "broken";
 -static char stext[256];
-+static const char dwmdir[] = "dwm";
-+static const char localshare[] = ".local/share";
 +static char stext[1024];
  static int screen;
  static int sw, sh;           /* X display screen geometry width, height */
  static int bh;               /* bar height */
-@@ -257,9 +299,10 @@ static void (*handler[LASTEvent]) (XEvent *) = {
+@@ -257,9 +293,10 @@ static void (*handler[LASTEvent]) (XEvent *) = {
  	[MapRequest] = maprequest,
  	[MotionNotify] = motionnotify,
  	[PropertyNotify] = propertynotify,
@@ -325,7 +284,43 @@ index f1d86b2..d8e9cf4 100644
  static int running = 1;
  static Cur *cursor[CurLast];
  static Clr **scheme;
-@@ -441,7 +484,7 @@ buttonpress(XEvent *e)
+@@ -274,6 +311,35 @@ static Window root, wmcheckwin;
+ /* compile-time check if all tags fit into an unsigned int bit array. */
+ struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
+ 
++/* dwm will keep pid's of processes from autostart array and kill them at quit */
++static pid_t *autostart_pids;
++static size_t autostart_len;
++
++/* execute command from autostart array */
++static void
++autostart_exec() {
++	const char *const *p;
++	size_t i = 0;
++
++	/* count entries */
++	for (p = autostart; *p; autostart_len++, p++)
++		while (*++p);
++
++	autostart_pids = malloc(autostart_len * sizeof(pid_t));
++	for (p = autostart; *p; i++, p++) {
++		if ((autostart_pids[i] = fork()) == 0) {
++			setsid();
++			execvp(*p, (char *const *)p);
++			fprintf(stderr, "dwm: execvp %s\n", *p);
++			perror(" failed");
++			_exit(EXIT_FAILURE);
++		}
++		/* skip arguments */
++		while (*++p);
++	}
++}
++
++
+ /* function implementations */
+ void
+ applyrules(Client *c)
+@@ -441,7 +507,7 @@ buttonpress(XEvent *e)
  			arg.ui = 1 << i;
  		} else if (ev->x < x + TEXTW(selmon->ltsymbol))
  			click = ClkLtSymbol;
@@ -334,7 +329,7 @@ index f1d86b2..d8e9cf4 100644
  			click = ClkStatusText;
  		else
  			click = ClkWinTitle;
-@@ -484,9 +527,16 @@ cleanup(void)
+@@ -484,9 +550,16 @@ cleanup(void)
  	XUngrabKey(dpy, AnyKey, AnyModifier, root);
  	while (mons)
  		cleanupmon(mons);
@@ -353,7 +348,7 @@ index f1d86b2..d8e9cf4 100644
  		free(scheme[i]);
  	free(scheme);
  	XDestroyWindow(dpy, wmcheckwin);
-@@ -515,9 +565,58 @@ cleanupmon(Monitor *mon)
+@@ -515,9 +588,58 @@ cleanupmon(Monitor *mon)
  void
  clientmessage(XEvent *e)
  {
@@ -412,7 +407,7 @@ index f1d86b2..d8e9cf4 100644
  	if (!c)
  		return;
  	if (cme->message_type == netatom[NetWMState]) {
-@@ -570,7 +669,7 @@ configurenotify(XEvent *e)
+@@ -570,7 +692,7 @@ configurenotify(XEvent *e)
  				for (c = m->clients; c; c = c->next)
  					if (c->isfullscreen)
  						resizeclient(c, m->mx, m->my, m->mw, m->mh);
@@ -421,7 +416,7 @@ index f1d86b2..d8e9cf4 100644
  			}
  			focus(NULL);
  			arrange(NULL);
-@@ -655,6 +754,11 @@ destroynotify(XEvent *e)
+@@ -655,6 +777,11 @@ destroynotify(XEvent *e)
  
  	if ((c = wintoclient(ev->window)))
  		unmanage(c, 1);
@@ -433,7 +428,7 @@ index f1d86b2..d8e9cf4 100644
  }
  
  void
-@@ -695,10 +799,119 @@ dirtomon(int dir)
+@@ -695,10 +822,119 @@ dirtomon(int dir)
  	return m;
  }
  
@@ -554,7 +549,7 @@ index f1d86b2..d8e9cf4 100644
  	int boxs = drw->fonts->h / 9;
  	int boxw = drw->fonts->h / 6 + 2;
  	unsigned int i, occ = 0, urg = 0;
-@@ -707,13 +920,15 @@ drawbar(Monitor *m)
+@@ -707,13 +943,15 @@ drawbar(Monitor *m)
  	if (!m->showbar)
  		return;
  
@@ -573,7 +568,7 @@ index f1d86b2..d8e9cf4 100644
  	for (c = m->clients; c; c = c->next) {
  		occ |= c->tags;
  		if (c->isurgent)
-@@ -734,7 +949,7 @@ drawbar(Monitor *m)
+@@ -734,7 +972,7 @@ drawbar(Monitor *m)
  	drw_setscheme(drw, scheme[SchemeNorm]);
  	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
  
@@ -582,7 +577,7 @@ index f1d86b2..d8e9cf4 100644
  		if (m->sel) {
  			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
  			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
-@@ -745,7 +960,7 @@ drawbar(Monitor *m)
+@@ -745,7 +983,7 @@ drawbar(Monitor *m)
  			drw_rect(drw, x, 0, w, bh, 1, 1);
  		}
  	}
@@ -591,7 +586,7 @@ index f1d86b2..d8e9cf4 100644
  }
  
  void
-@@ -782,8 +997,11 @@ expose(XEvent *e)
+@@ -782,8 +1020,11 @@ expose(XEvent *e)
  	Monitor *m;
  	XExposeEvent *ev = &e->xexpose;
  
@@ -604,7 +599,7 @@ index f1d86b2..d8e9cf4 100644
  }
  
  void
-@@ -869,9 +1087,17 @@ getatomprop(Client *c, Atom prop)
+@@ -869,9 +1110,17 @@ getatomprop(Client *c, Atom prop)
  	unsigned char *p = NULL;
  	Atom da, atom = None;
  
@@ -623,7 +618,7 @@ index f1d86b2..d8e9cf4 100644
  		XFree(p);
  	}
  	return atom;
-@@ -905,6 +1131,16 @@ getstate(Window w)
+@@ -905,6 +1154,16 @@ getstate(Window w)
  	return result;
  }
  
@@ -640,7 +635,7 @@ index f1d86b2..d8e9cf4 100644
  int
  gettextprop(Window w, Atom atom, char *text, unsigned int size)
  {
-@@ -1017,7 +1253,8 @@ killclient(const Arg *arg)
+@@ -1017,7 +1276,8 @@ killclient(const Arg *arg)
  {
  	if (!selmon->sel)
  		return;
@@ -650,7 +645,7 @@ index f1d86b2..d8e9cf4 100644
  		XGrabServer(dpy);
  		XSetErrorHandler(xerrordummy);
  		XSetCloseDownMode(dpy, DestroyAll);
-@@ -1028,6 +1265,25 @@ killclient(const Arg *arg)
+@@ -1028,6 +1288,25 @@ killclient(const Arg *arg)
  	}
  }
  
@@ -676,7 +671,7 @@ index f1d86b2..d8e9cf4 100644
  void
  manage(Window w, XWindowAttributes *wa)
  {
-@@ -1104,6 +1360,14 @@ maprequest(XEvent *e)
+@@ -1104,6 +1383,14 @@ maprequest(XEvent *e)
  	static XWindowAttributes wa;
  	XMapRequestEvent *ev = &e->xmaprequest;
  
@@ -691,7 +686,7 @@ index f1d86b2..d8e9cf4 100644
  	if (!XGetWindowAttributes(dpy, ev->window, &wa) || wa.override_redirect)
  		return;
  	if (!wintoclient(ev->window))
-@@ -1225,7 +1489,18 @@ propertynotify(XEvent *e)
+@@ -1225,7 +1512,18 @@ propertynotify(XEvent *e)
  	Window trans;
  	XPropertyEvent *ev = &e->xproperty;
  
@@ -711,45 +706,26 @@ index f1d86b2..d8e9cf4 100644
  		updatestatus();
  	else if (ev->state == PropertyDelete)
  		return; /* ignore */
-@@ -1258,7 +1533,36 @@ propertynotify(XEvent *e)
+@@ -1258,7 +1556,17 @@ propertynotify(XEvent *e)
  void
  quit(const Arg *arg)
  {
 -	running = 0;
-+    killsbar();
++    size_t i;
++
++	/* kill child processes */
++	for (i = 0; i < autostart_len; i++) {
++		if (0 < autostart_pids[i]) {
++			kill(autostart_pids[i], SIGTERM);
++			waitpid(autostart_pids[i], NULL, 0);
++		}
++	}
++
 +    running = 0;
-+}
-+
-+void
-+killsbar() {
-+    FILE *fptr;
-+    char pidofbar[10];
-+    int i_pid;
-+    char *user;
-+    char path_to_pid[255];
-+
-+    user = getlogin();
-+
-+    strcat(path_to_pid, "/home/");
-+    strcat(path_to_pid, user);
-+    strcat(path_to_pid, "/.cache/pidofbar");
-+
-+    fptr = fopen(path_to_pid, "r");
-+    if (fptr == NULL) {
-+        return;
-+    }
-+    fgets(pidofbar, 10, fptr);
-+    i_pid = atoi(pidofbar);
-+
-+    if (i_pid != 0) {
-+        kill(i_pid, 9);
-+    }
-+
-+    fclose(fptr);
  }
  
  Monitor *
-@@ -1275,6 +1579,19 @@ recttomon(int x, int y, int w, int h)
+@@ -1275,6 +1583,19 @@ recttomon(int x, int y, int w, int h)
  	return r;
  }
  
@@ -769,7 +745,7 @@ index f1d86b2..d8e9cf4 100644
  void
  resize(Client *c, int x, int y, int w, int h, int interact)
  {
-@@ -1282,6 +1599,14 @@ resize(Client *c, int x, int y, int w, int h, int interact)
+@@ -1282,6 +1603,14 @@ resize(Client *c, int x, int y, int w, int h, int interact)
  		resizeclient(c, x, y, w, h);
  }
  
@@ -784,7 +760,7 @@ index f1d86b2..d8e9cf4 100644
  void
  resizeclient(Client *c, int x, int y, int w, int h)
  {
-@@ -1354,6 +1679,19 @@ resizemouse(const Arg *arg)
+@@ -1354,6 +1683,19 @@ resizemouse(const Arg *arg)
  	}
  }
  
@@ -804,91 +780,7 @@ index f1d86b2..d8e9cf4 100644
  void
  restack(Monitor *m)
  {
-@@ -1390,6 +1728,83 @@ run(void)
- 			handler[ev.type](&ev); /* call handler */
- }
- 
-+void
-+runautostart(void)
-+{
-+	char *pathpfx;
-+	char *path;
-+	char *xdgdatahome;
-+	char *home;
-+	struct stat sb;
-+
-+	if ((home = getenv("HOME")) == NULL)
-+		/* this is almost impossible */
-+		return;
-+
-+	/* if $XDG_DATA_HOME is set and not empty, use $XDG_DATA_HOME/dwm,
-+	 * otherwise use ~/.local/share/dwm as autostart script directory
-+	 */
-+	xdgdatahome = getenv("XDG_DATA_HOME");
-+	if (xdgdatahome != NULL && *xdgdatahome != '\0') {
-+		/* space for path segments, separators and nul */
-+		pathpfx = ecalloc(1, strlen(xdgdatahome) + strlen(dwmdir) + 2);
-+
-+		if (sprintf(pathpfx, "%s/%s", xdgdatahome, dwmdir) <= 0) {
-+			free(pathpfx);
-+			return;
-+		}
-+	} else {
-+		/* space for path segments, separators and nul */
-+		pathpfx = ecalloc(1, strlen(home) + strlen(localshare)
-+		                     + strlen(dwmdir) + 3);
-+
-+		if (sprintf(pathpfx, "%s/%s/%s", home, localshare, dwmdir) < 0) {
-+			free(pathpfx);
-+			return;
-+		}
-+	}
-+
-+	/* check if the autostart script directory exists */
-+	if (! (stat(pathpfx, &sb) == 0 && S_ISDIR(sb.st_mode))) {
-+		/* the XDG conformant path does not exist or is no directory
-+		 * so we try ~/.dwm instead
-+		 */
-+		char *pathpfx_new = realloc(pathpfx, strlen(home) + strlen(dwmdir) + 3);
-+		if(pathpfx_new == NULL) {
-+			free(pathpfx);
-+			return;
-+		}
-+		pathpfx = pathpfx_new;
-+
-+		if (sprintf(pathpfx, "%s/.%s", home, dwmdir) <= 0) {
-+			free(pathpfx);
-+			return;
-+		}
-+	}
-+
-+	/* try the blocking script first */
-+	path = ecalloc(1, strlen(pathpfx) + strlen(autostartblocksh) + 2);
-+	if (sprintf(path, "%s/%s", pathpfx, autostartblocksh) <= 0) {
-+		free(path);
-+		free(pathpfx);
-+	}
-+
-+	if (access(path, X_OK) == 0)
-+		system(path);
-+
-+	/* now the non-blocking script */
-+	if (sprintf(path, "%s/%s", pathpfx, autostartsh) <= 0) {
-+		free(path);
-+		free(pathpfx);
-+	}
-+
-+	if (access(path, X_OK) == 0)
-+		system(strcat(path, " &"));
-+
-+	free(pathpfx);
-+	free(path);
-+}
-+
- void
- scan(void)
- {
-@@ -1443,26 +1858,37 @@ setclientstate(Client *c, long state)
+@@ -1443,26 +1785,37 @@ setclientstate(Client *c, long state)
  }
  
  int
@@ -937,7 +829,7 @@ index f1d86b2..d8e9cf4 100644
  	}
  	return exists;
  }
-@@ -1476,7 +1902,7 @@ setfocus(Client *c)
+@@ -1476,7 +1829,7 @@ setfocus(Client *c)
  			XA_WINDOW, 32, PropModeReplace,
  			(unsigned char *) &(c->win), 1);
  	}
@@ -946,7 +838,39 @@ index f1d86b2..d8e9cf4 100644
  }
  
  void
-@@ -1571,22 +1997,32 @@ setup(void)
+@@ -1507,6 +1860,31 @@ setfullscreen(Client *c, int fullscreen)
+ 	}
+ }
+ 
++ void
++ sigchld(int unused)
++ {
++	pid_t pid;
++
++	if (signal(SIGCHLD, sigchld) == SIG_ERR)
++		die("can't install SIGCHLD handler:");
++	while (0 < waitpid(-1, NULL, WNOHANG));
++	while (0 < (pid = waitpid(-1, NULL, WNOHANG))) {
++		pid_t *p, *lim;
++
++		if (!(p = autostart_pids))
++			continue;
++		lim = &p[autostart_len];
++
++		for (; p < lim; p++) {
++			if (*p == pid) {
++				*p = -1;
++				break;
++			}
++		}
++
++	}
++}
++
+ void
+ setlayout(const Arg *arg)
+ {
+@@ -1571,22 +1949,32 @@ setup(void)
  	wmatom[WMState] = XInternAtom(dpy, "WM_STATE", False);
  	wmatom[WMTakeFocus] = XInternAtom(dpy, "WM_TAKE_FOCUS", False);
  	netatom[NetActiveWindow] = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
@@ -983,7 +907,7 @@ index f1d86b2..d8e9cf4 100644
  	/* init bars */
  	updatebars();
  	updatestatus();
-@@ -1644,6 +2080,7 @@ showhide(Client *c)
+@@ -1644,6 +2032,7 @@ showhide(Client *c)
  	}
  }
  
@@ -991,7 +915,16 @@ index f1d86b2..d8e9cf4 100644
  void
  spawn(const Arg *arg)
  {
-@@ -1717,7 +2154,18 @@ togglebar(const Arg *arg)
+@@ -1666,6 +2055,8 @@ spawn(const Arg *arg)
+ 	}
+ }
+ 
++
++
+ void
+ tag(const Arg *arg)
+ {
+@@ -1717,7 +2108,18 @@ togglebar(const Arg *arg)
  {
  	selmon->showbar = !selmon->showbar;
  	updatebarpos(selmon);
@@ -1011,7 +944,7 @@ index f1d86b2..d8e9cf4 100644
  	arrange(selmon);
  }
  
-@@ -1813,11 +2261,18 @@ unmapnotify(XEvent *e)
+@@ -1813,11 +2215,18 @@ unmapnotify(XEvent *e)
  		else
  			unmanage(c, 0);
  	}
@@ -1030,7 +963,7 @@ index f1d86b2..d8e9cf4 100644
  	Monitor *m;
  	XSetWindowAttributes wa = {
  		.override_redirect = True,
-@@ -1828,10 +2283,15 @@ updatebars(void)
+@@ -1828,10 +2237,15 @@ updatebars(void)
  	for (m = mons; m; m = m->next) {
  		if (m->barwin)
  			continue;
@@ -1047,7 +980,7 @@ index f1d86b2..d8e9cf4 100644
  		XMapRaised(dpy, m->barwin);
  		XSetClassHint(dpy, m->barwin, &ch);
  	}
-@@ -2008,6 +2468,125 @@ updatestatus(void)
+@@ -2008,6 +2422,125 @@ updatestatus(void)
  	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext)))
  		strcpy(stext, "dwm-"VERSION);
  	drawbar(selmon);
@@ -1173,7 +1106,7 @@ index f1d86b2..d8e9cf4 100644
  }
  
  void
-@@ -2075,6 +2654,16 @@ wintoclient(Window w)
+@@ -2075,6 +2608,16 @@ wintoclient(Window w)
  	return NULL;
  }
  
@@ -1190,7 +1123,7 @@ index f1d86b2..d8e9cf4 100644
  Monitor *
  wintomon(Window w)
  {
-@@ -2128,6 +2717,22 @@ xerrorstart(Display *dpy, XErrorEvent *ee)
+@@ -2128,6 +2671,22 @@ xerrorstart(Display *dpy, XErrorEvent *ee)
  	return -1;
  }
  
@@ -1213,13 +1146,15 @@ index f1d86b2..d8e9cf4 100644
  void
  zoom(const Arg *arg)
  {
-@@ -2158,8 +2763,71 @@ main(int argc, char *argv[])
- 		die("pledge");
- #endif /* __OpenBSD__ */
- 	scan();
-+	runautostart();
- 	run();
- 	cleanup();
+@@ -2152,6 +2711,7 @@ main(int argc, char *argv[])
+ 	if (!(dpy = XOpenDisplay(NULL)))
+ 		die("dwm: cannot open display");
+ 	checkotherwm();
++	autostart_exec();
+ 	setup();
+ #ifdef __OpenBSD__
+ 	if (pledge("stdio rpath proc exec", NULL) == -1)
+@@ -2163,3 +2723,65 @@ main(int argc, char *argv[])
  	XCloseDisplay(dpy);
  	return EXIT_SUCCESS;
  }
