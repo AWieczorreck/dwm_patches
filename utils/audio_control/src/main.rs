@@ -116,6 +116,14 @@ fn input_action(default_sink_id: Vec<u32>, ids: Vec<u32>, action: String, value:
         if action == "vol_down" {
             vol_down(mic_id, "source", value);
         }
+
+        if action == "get_vol" {
+            get_vol(mic_id, "source");
+        }
+
+        if action == "is_mute" {
+            get_is_mute(mic_id, "source");
+        }
     }
 }
 
@@ -133,4 +141,16 @@ fn vol_up(id: u32, dev: &str, vol: u8) -> bool {
 
 fn vol_down(id: u32, dev: &str, vol: u8) -> bool {
     Command::new("pamixer").arg(format!("--{}", dev)).arg(id.to_string()).arg("-d").arg(vol.to_string()).status().is_ok()
+}
+
+fn get_vol(id: u32, dev: &str) -> bool {
+    let vol = String::from_utf8(Command::new("pamixer").arg(format!("--{}", dev)).arg(id.to_string()).arg("--get-volume").output().unwrap().stdout).unwrap();
+    print!("{}", vol);
+    true
+}
+
+fn get_is_mute(id: u32, dev: &str) -> bool {
+    let vol = String::from_utf8(Command::new("pamixer").arg(format!("--{}", dev)).arg(id.to_string()).arg("--get-mute").output().unwrap().stdout).unwrap();
+    print!("{}", vol);
+    true
 }
