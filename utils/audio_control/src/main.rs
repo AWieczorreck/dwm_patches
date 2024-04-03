@@ -136,11 +136,11 @@ fn mute(id: u32, dev: &str) -> bool {
 }
 
 fn vol_up(id: u32, dev: &str, vol: u8) -> bool {
-    Command::new("pamixer").arg(format!("--{}", dev)).arg(id.to_string()).arg("-i").arg(vol.to_string()).status().is_ok()
+    Command::new("pamixer").arg(format!("--{}", dev)).arg(id.to_string()).arg("-i").arg(vol.to_string()).arg("--allow-boost").status().is_ok()
 }
 
 fn vol_down(id: u32, dev: &str, vol: u8) -> bool {
-    Command::new("pamixer").arg(format!("--{}", dev)).arg(id.to_string()).arg("-d").arg(vol.to_string()).status().is_ok()
+    Command::new("pamixer").arg(format!("--{}", dev)).arg(id.to_string()).arg("-d").arg(vol.to_string()).arg("--allow-boost").status().is_ok()
 }
 
 fn get_vol(id: u32, dev: &str) -> bool {
