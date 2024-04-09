@@ -21,7 +21,7 @@ index ffa69b4..072e417 100644
  uninstall:
  	rm -f ${DESTDIR}${PREFIX}/bin/dwm\
 diff --git a/config.def.h b/config.def.h
-index 9efa774..8b92171 100644
+index 9efa774..4788ff6 100644
 --- a/config.def.h
 +++ b/config.def.h
 @@ -1,56 +1,92 @@
@@ -48,7 +48,7 @@ index 9efa774..8b92171 100644
 -static const char col_gray3[]       = "#bbbbbb";
 -static const char col_gray4[]       = "#eeeeee";
 -static const char col_cyan[]        = "#005577";
-+static const int user_bh            = 16;        /* 0 means that dwm will calculate bar height, >= 1 means dwm will user_bh as bar height */
++static const int user_bh            = 18;        /* 0 means that dwm will calculate bar height, >= 1 means dwm will user_bh as bar height */
 +static const unsigned int stairpx   = 20;       /* depth of the stairs layout */
 +static const int stairdirection     = 1;        /* 0: left-aligned, 1: right-aligned */
 +static const int stairsamesize      = 1;        /* 1 means shrink all the staired windows to the same size */
@@ -1082,7 +1082,7 @@ index 6471431..a0f196b 100644
  
  /* Drawable abstraction */
 diff --git a/dwm.c b/dwm.c
-index f1d86b2..bf0ab9b 100644
+index f1d86b2..e648aa6 100644
 --- a/dwm.c
 +++ b/dwm.c
 @@ -20,6 +20,7 @@
@@ -1401,7 +1401,7 @@ index f1d86b2..bf0ab9b 100644
  static int running = 1;
  static Cur *cursor[CurLast];
  static Clr **scheme;
-@@ -271,1423 +322,1958 @@ static Window root, wmcheckwin;
+@@ -271,1423 +322,1963 @@ static Window root, wmcheckwin;
  /* configuration, allows nested code to access above variables */
  #include "config.h"
  
@@ -2713,6 +2713,8 @@ index f1d86b2..bf0ab9b 100644
 +    unfocus(selmon->sel, 0);
 +    selmon = m;
 +    focus(NULL);
++    if (selmon->sel)
++        XWarpPointer(dpy, None, selmon->sel->win, 0, 0, 0, 0, selmon->sel->w/2, selmon->sel->h/2);
  }
  
  void
@@ -2759,6 +2761,7 @@ index f1d86b2..bf0ab9b 100644
 +    if (c) {
 +        focus(c);
 +        restack(selmon);
++        XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
 +    }
  }
  
@@ -3206,6 +3209,8 @@ index f1d86b2..bf0ab9b 100644
 +    c->mon->sel = c;
 +    arrange(c->mon);
 +    XMapWindow(dpy, c->win);
++    if (c && c->mon == selmon)
++        XWarpPointer(dpy, None, c->win, 0, 0, 0, 0, c->w/2, c->h/2);
 +    focus(NULL);
  }
  
@@ -4416,7 +4421,7 @@ index f1d86b2..bf0ab9b 100644
  	Client *c;
  
  	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
-@@ -1698,398 +2284,699 @@ tile(Monitor *m)
+@@ -1698,398 +2289,701 @@ tile(Monitor *m)
  		mw = m->nmaster ? m->ww * m->mfact : 0;
  	else
  		mw = m->ww;
@@ -4718,6 +4723,8 @@ index f1d86b2..bf0ab9b 100644
 +    focus(NULL);
 +    updateclientlist();
 +    arrange(m);
++    if (m == selmon && m->sel)
++        XWarpPointer(dpy, None, m->sel->win, 0, 0, 0, 0, m->sel->w/2, m->sel->h/2);
  }
  
  void
@@ -5391,7 +5398,7 @@ index f1d86b2..bf0ab9b 100644
  }
  
  /* There's no way to check accesses to destroyed windows, thus those cases are
-@@ -2098,25 +2985,25 @@ wintomon(Window w)
+@@ -2098,25 +2992,25 @@ wintomon(Window w)
  int
  xerror(Display *dpy, XErrorEvent *ee)
  {
@@ -5431,7 +5438,7 @@ index f1d86b2..bf0ab9b 100644
  }
  
  /* Startup Error handler to check if another window manager
-@@ -2124,42 +3011,121 @@ xerrordummy(Display *dpy, XErrorEvent *ee)
+@@ -2124,42 +3018,121 @@ xerrordummy(Display *dpy, XErrorEvent *ee)
  int
  xerrorstart(Display *dpy, XErrorEvent *ee)
  {
