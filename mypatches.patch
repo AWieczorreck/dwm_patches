@@ -21,10 +21,10 @@ index ffa69b4..072e417 100644
  uninstall:
  	rm -f ${DESTDIR}${PREFIX}/bin/dwm\
 diff --git a/config.def.h b/config.def.h
-index 9efa774..793a428 100644
+index 9efa774..6f0405f 100644
 --- a/config.def.h
 +++ b/config.def.h
-@@ -1,56 +1,92 @@
+@@ -1,56 +1,89 @@
  /* See LICENSE file for copyright and license details. */
  
 +#include <X11/XF86keysym.h>
@@ -36,7 +36,7 @@ index 9efa774..793a428 100644
 +static const int startwithgaps[] = { 1 };           /* 1 means gaps are used by default, this can be customized for each tag */
 +static const unsigned int gappx[] = { 5 };     /* default gap between windows in pixels, this can be customized for each tag */
 +static const unsigned int systrayonleft  = 0;   /* 0: systray in the right corner, >0: systray on left of status text */
-+static const unsigned int systrayspacing = 10;   /* systray spacing */
++static const unsigned int systrayspacing = 5;   /* systray spacing */
 +static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
 +static const int showsystray        = 1;        /* 0 means no systray */
  static const int showbar            = 1;        /* 0 means no bar */
@@ -76,10 +76,7 @@ index 9efa774..793a428 100644
 +static const char *const autostart[] = {
 +    "picom", "--config", "/home/$USER/.config/picom/picom.conf", NULL,
 +    "pcloud", NULL,
-+    "slstatus", NULL,
-+    "ckb-next", NULL,
-+    "/home/user/gitrepos/dwm_rs_statusbar/target/release/dwm_rs_statusbar", NULL,
-+//  "nitrogen", "--restore", NULL,
++    "dwm_rs_statusbar", NULL,
 +    NULL/* terminate */
  };
  
@@ -144,7 +141,7 @@ index 9efa774..793a428 100644
  
  /* helper for spawning shell commands in the pre dwm-5.0 fashion */
  #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
-@@ -58,59 +94,107 @@ static const Layout layouts[] = {
+@@ -58,59 +91,107 @@ static const Layout layouts[] = {
  /* commands */
  static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
  static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
@@ -154,8 +151,8 @@ index 9efa774..793a428 100644
 +static const char *scratchpadcmd[] = { "alacritty", "-T", scratchpadname, "-o", "window.dimensions.columns=120", "-o", "window.dimensions.lines=34", NULL };
 +static const char *termcmd[]  = { "alacritty", NULL };
 +static const char *browsers[][3] = {
-+    { "firefox", NULL },
-+    { "firefox", "-private-window", NULL }
++    { "librewolf", NULL },
++    { "librewolf", "-private-window", NULL }
 +};
 +static const char *layoutmenu_cmd = "layoutmenu.sh";
 +static const char *mutecmd[] = { "audio_control", "speaker", "toggle_mute", "1", NULL };
